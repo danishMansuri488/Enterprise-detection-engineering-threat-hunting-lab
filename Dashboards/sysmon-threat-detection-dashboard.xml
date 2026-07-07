@@ -1,0 +1,197 @@
+<dashboard version="1.1" theme="dark">
+  <label>Sysmon Threat Detection &amp; Process Monitoring Dashboard</label>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <query>index=main source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=1
+| stats count AS "Total Processes Created"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <chart>
+        <title>Top Parent Processes</title>
+        <search>
+          <query>index=main source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=1
+| stats count by ParentImage
+| sort -count
+| head 10</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Top 10 Executed Processes</title>
+        <search>
+          <query>index=main source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=1
+| stats count by Image
+| sort -count
+| head 10</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>PowerShell Execution Monitoring</title>
+        <search>
+          <query>index=main source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=1
+Image="*powershell.exe"
+| table _time User Image ParentImage CommandLine
+| sort - _time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Command Prompt Execution Monitoring</title>
+        <search>
+          <query>index=main source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=1
+Image="*cmd.exe"
+| table _time User Image ParentImage CommandLine
+| sort - _time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Network Connection Monitoring</title>
+      <table>
+        <search>
+          <query>index=main source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=3
+| table _time Image DestinationIp DestinationHostname DestinationPort Protocol User
+| sort -_time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Registry Modification Monitoring</title>
+      <table>
+        <search>
+          <query>index=main source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=13
+| table _time Image TargetObject User Details
+| sort -_time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>High Integrity Process Monitoring</title>
+        <search>
+          <query>index=main source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=1
+(IntegrityLevel="High" OR IntegrityLevel="System")
+| table _time User IntegrityLevel Image ParentImage CommandLine
+| sort - _time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Suspicious Process Detection</title>
+        <search>
+          <query>index=main source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=1
+(Image="*powershell.exe" OR Image="*cmd.exe" OR Image="*rundll32.exe" OR Image="*regsvr32.exe" OR Image="*mshta.exe" OR Image="*certutil.exe" OR Image="*wmic.exe")
+| table _time User Image ParentImage CommandLine IntegrityLevel
+| sort - _time</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Process Creation Timeline</title>
+        <search>
+          <query>index=main source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=1
+| timechart span=5m count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>5m</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+</dashboard>
