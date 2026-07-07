@@ -1,6 +1,7 @@
 # Enterprise Detection Engineering & Threat Hunting Lab Architecture
 
 ## Overview
+![Uploading architecture.png…]()
 
 This lab simulates an enterprise Security Operations Center (SOC) environment for collecting, forwarding, analyzing, and investigating Windows endpoint telemetry.
 
